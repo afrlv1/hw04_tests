@@ -19,3 +19,6 @@ static/
 posts/static/
 
 db.sqlite3
+/manage.py
+/requirements.txt
+/posts/migrations/
