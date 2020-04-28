@@ -29,10 +29,9 @@ def new_post(request):
     if request.method == 'POST':
         form = PostForm(request.POST)
         if form.is_valid():
-            text = form.cleaned_data['text']
-            group = form.cleaned_data['group']
-            author = request.user
-            Post.objects.create(text=text, group=group, author=author)
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
             return redirect('index')
     form = PostForm()
     return render(request, 'new_post.html', {'form': form})
@@ -42,7 +41,7 @@ def profile(request, username):
     # тут тело функции
     profile = get_object_or_404(User, username=username)
     posts_profile = Post.objects.filter(author=profile).order_by('-pub_date').all()
-    posts_count = Post.objects.filter(author=profile).count()
+    posts_count = posts_profile.count()
     paginator = Paginator(posts_profile, 5)  # показывать по 5 записей на странице.
     page_number = request.GET.get('page')  # переменная в URL с номером запрошенной страницы
     page = paginator.get_page(page_number)  # получить записи с нужным смещением
@@ -52,21 +51,21 @@ def post_view(request, username, post_id):
     # тут тело функции
     profile = get_object_or_404(User, username=username)
     post_count = Post.objects.filter(author=profile).count()
-    post = Post.objects.get(pk=post_id)
+    post = get_object_or_404(Post, pk=post_id)
     return render(request, 'post.html', {'profile': profile, 'posts_count': post_count, 'post': post,})
 
 
 @login_required
 def post_edit(request, username, post_id):
-    author = User.objects.get(username=username)
-    post = Post.objects.get(pk=post_id)
+    author = get_object_or_404(User, username=username)
+    post = get_object_or_404(Post, pk=post_id)
 
     if request.user != author:
         return redirect('post', username=username, post_id=post_id)
     if request.method == 'POST':
         form = PostForm(request.POST, instance=post)
         if form.is_valid():
-            post = form.save()
+            form.save()
             return redirect('post', username=username, post_id=post_id)
         return render(request, 'new_post.html', {'form': form, 'post': post})
     return render(request, 'new_post.html', {'form': PostForm(instance=post), 'post': post})

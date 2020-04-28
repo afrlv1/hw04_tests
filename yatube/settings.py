@@ -38,8 +38,8 @@ ALLOWED_HOSTS = [
 INSTALLED_APPS = [
     'posts',  # наше приложение posts**
     'users', #новое приложение для работы с пользователями
-    "django.contrib.sites",
-    "django.contrib.flatpages",
+    'django.contrib.sites',
+    'django.contrib.flatpages',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
